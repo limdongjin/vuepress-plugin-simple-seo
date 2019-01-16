@@ -1,0 +1,24 @@
+{
+  "name": "@limdongjin/vuepress-plugin-simple-seo",
+  "version": "1.0.0-alpha.31",
+  "description": "simple-seo plugin for vuepress",
+  "main": "index.js",
+  "author": "limdongjin <geniuslim27@gmail.com>",
+  "license": "MIT",
+  "publishConfig": {
+    "access": "public"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/limdongjin/vuepress-plugin-simple-seo.git"
+  },
+  "keywords": [
+    "documentation",
+    "vue",
+    "vuepress",
+    "seo"
+  ],
+  "bugs": {
+    "url": "https://github.com/limdongjin/vuepress-plugin-simple-seo/issues"
+  }
+}
