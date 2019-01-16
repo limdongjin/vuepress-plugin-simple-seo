@@ -12,7 +12,7 @@ module.exports = (options = {}, context) => ({
         const default_image = options.default_image
 
         if(frontmatter.meta === undefined){
-            frontmatter.meta = [{"property": "og:image", "content": default_image }]
+            frontmatter.meta = [{"property": "og:image", "content": root_url + default_image }]
         }
 
         let flag = false;
