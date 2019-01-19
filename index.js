@@ -87,7 +87,6 @@ module.exports = (options = {}, context) => ({
             let meta_description = find_meta_description(frontmatter);
 
             if (description) {
-                console.log('fr')
                 if (!is_duplicate_og('og:description'))
                     push_og('og:description', description);
                 if (!is_duplicate_tw( 'twitter:description'))
@@ -100,9 +99,7 @@ module.exports = (options = {}, context) => ({
             meta_description = find_meta_description(frontmatter);
 
             if (meta_description) {
-                console.log('meta')
                 if (!is_duplicate_og('og:description')) {
-                    console.log("og")
                     push_og('og:description', meta_description);
                 }
                 if (!is_duplicate_tw('twitter:description'))
