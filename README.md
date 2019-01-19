@@ -170,7 +170,7 @@ if you are not write frontmatter title, create meta title tag from $page.title.
 
 ### image_width
 
-```
+```html
 <meta name="og:image:width" content="400">
 ```
 
