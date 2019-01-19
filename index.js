@@ -142,13 +142,25 @@ module.exports = (options = {}, context) => ({
         const twitter_creator_seo = () => {
             const {default_twitter_creator}=options
             const {twitter_creator} = frontmatter
-
+            let creator;
             if (is_duplicate_tw('twitter:creator')) return
 
-            if (twitter_creator)
-                push_twit('twitter:creator', twitter_creator);
-            else if (default_twitter_creator)
-                push_twit('twitter:creator', default_twitter_creator)
+            if (twitter_creator) {
+                if(!twitter_creator.includes("@")){
+                    creator = "@"+twitter_creator
+                }else{
+                    creator = twitter_creator
+                }
+                push_twit('twitter:creator', creator);
+            }
+            else if (default_twitter_creator) {
+                if(!twitter_creator.includes("@")) {
+                    creator = "@"+default_twitter_creator
+                }else{
+                    creator = default_twitter_creator
+                }
+                push_twit('twitter:creator', creator)
+            }
         };
 
         const og_type_seo = () => {
@@ -186,11 +198,22 @@ module.exports = (options = {}, context) => ({
         const twitter_site_seo = () => {
             const {default_twitter_site} = options
             const {twitter_site} = frontmatter
+            let sit;
 
             if (!is_duplicate_tw('twitter:site') && twitter_site)
-                push_twit('twitter:site', twitter_site);
+                if(!twitter_site.includes("@")){
+                    sit = "@"+twitter_site
+                }else{
+                    sit = twitter_site
+                }
+                push_twit('twitter:site', sit);
             if (!is_duplicate_tw('twitter:site') && default_twitter_site)
-                push_twit('twitter:site', default_twitter_site)
+                if(!twitter_site.includes("@")){
+                    sit = "@"+default_twitter_site
+                }else{
+                    sit = default_twitter_site
+                }
+                push_twit('twitter:site', sit)
         };
 
         if (!exists_meta(frontmatter)) frontmatter.meta = [];
@@ -267,12 +290,3 @@ const itemprop_template = (itemprop, content) => ({
     'itemprop': itemprop,
     'content': content
 });
-
-// custom frontmatter: image, image_type, image_width, image_height, image_alt
-// ,description, og_type, twitter_card, site_name
-// twitter_site, twitter_creator,
-
-// option: root_url, default_image, default_image_type, default_image_width, default_image_height,
-// default_image_alt,
-// default_og_type, default_twitter_card, default_site_name
-// default_twitter_site, default_twitter_creator,

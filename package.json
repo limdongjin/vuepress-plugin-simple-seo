@@ -20,5 +20,11 @@
   ],
   "bugs": {
     "url": "https://github.com/limdongjin/vuepress-plugin-simple-seo/issues"
+  },
+  "engines": {
+    "node": ">=8"
+  },
+  "devDependencies": {
+    "vuepress": "^1.0.0-alpha.30"
   }
 }

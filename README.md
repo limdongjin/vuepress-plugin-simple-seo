@@ -103,7 +103,7 @@ module.exports = {
 - Default: `undefined`
 
 ```html
-<meta name="twitter:creator" content="@genilcoder">
+<meta name="twitter:creator" content="@limdongjin">
 ```
 
 ### default_twitter_site
@@ -111,7 +111,7 @@ module.exports = {
 - Default: `undefined`
 
 ```html
-<meta name="twitter:site" content="@genilcoder">
+<meta name="twitter:site" content="@limdongjin">
 ```
 
 ### default_twitter_card
@@ -188,14 +188,18 @@ if you are not write frontmatter title, create meta title tag from $page.title.
 
 ### twitter_creator
 
+- Example: twituser
+
 ```html
-<meta name="twitter:creator" content="@genilcoder">
+<meta name="twitter:creator" content="@twituser">
 ```
 
 ### twitter_site
 
+- Example: twituser
+
 ```html
-<meta name="twitter:site" content="@genilcoder">
+<meta name="twitter:site" content="@twituser">
 ```
 
 ### twitter_card
