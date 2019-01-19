@@ -1,6 +1,6 @@
 {
   "name": "@limdongjin/vuepress-plugin-simple-seo",
-  "version": "1.0.2",
+  "version": "1.0.4",
   "description": "simple-seo plugin for vuepress",
   "main": "index.js",
   "author": "limdongjin <geniuslim27@gmail.com>",
@@ -25,6 +25,6 @@
     "node": ">=8"
   },
   "devDependencies": {
-    "vuepress": "^1.0.0-alpha.30"
+    "vuepress": ">= 1.0.0-alpha.20"
   }
 }
