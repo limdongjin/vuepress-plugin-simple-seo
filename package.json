@@ -1,6 +1,6 @@
 {
   "name": "@limdongjin/vuepress-plugin-simple-seo",
-  "version": "1.0.4",
+  "version": "1.0.4-alpha.2",
   "description": "simple-seo plugin for vuepress",
   "main": "index.js",
   "author": "limdongjin <geniuslim27@gmail.com>",
