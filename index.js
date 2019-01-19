@@ -4,202 +4,269 @@ module.exports = (options = {}, context) => ({
     extendPageData($page) {
         const {
             frontmatter,
-            path,
-            title
+            path
         } = $page;
 
         let root_url = options.root_url || "";
-        const full_url = root_url + path
+        if(frontmatter.root_url){
+            root_url = frontmatter.root_url
+        }
+        const full_url = root_url + path;
 
-        let default_og_type = options.default_og_type || "article"
-        let default_twitter_card = options.default_twitter_card || "summary"
-        const default_site_name = options.default_site_name
+        const is_duplicate_og = property => has_property(frontmatter, property);
+        const is_duplicate_tw = name => has_name(frontmatter, name);
+        const is_duplicate_ite = ite => has_itemprop(frontmatter, ite);
 
-        const default_image = options.default_image;
+        const push_og = (property, content) => frontmatter.meta.push(og_template(property, content));
+        const push_twit = (name, content) =>frontmatter.meta.push(twitter_template(name, content));
 
-        let default_image_full_path;
-        if(default_image)
-            default_image_full_path = root_url + default_image
+        const image_seo = (options = {}, frontmatter) => {
+            const {
+                default_image,
+                default_image_type,
+                default_image_width,
+                default_image_height,
+                default_image_alt
+            } = options;
 
-        const default_image_type = options.default_image_type
-        const default_image_width = options.default_image_width
-        const default_image_height = options.default_image_height
-        const default_image_alt = options.default_image_alt
+            const {
+                image,
+                image_type,
+                image_width,
+                image_height,
+                image_alt
+            } = frontmatter;
 
-        const default_twitter_site = options.default_twitter_site
-        const default_twitter_creator = options.default_twitter_creator
+            let default_image_full_path;
+            if (default_image)
+                default_image_full_path = root_url + default_image;
+
+            // Default
+            if (!is_duplicate_og('og:image') && !image) {
+                const push_og_image_default = {
+                    'og:image': default_image_full_path,
+                    'og:image:type': default_image_type,
+                    'og:image:width': default_image_width,
+                    'og:image:height': default_image_height,
+                    'og:image:alt': default_image_alt
+                };
+
+                Object.keys(push_og_image_default).forEach((property)=>{
+                    if (!is_duplicate_og(property) && push_og_image_default[property])
+                        push_og(property, push_og_image_default[property])
+                })
+
+                if (!is_duplicate_tw('twitter:image') && !image) // case. image empty
+                    push_twit('twitter:image', default_image_full_path);
+            }
+
+            // frontmatter
+            if (image) {
+                const push_og_image_front = {
+                    'og:image': image,
+                    'og:image:type': image_type,
+                    'og:image:width': image_width,
+                    'og:image:height': image_height,
+                    'og:image:alt': image_alt
+                }
+                Object.keys(push_og_image_front).forEach((property)=>{
+                    if (!is_duplicate_og(property)) push_og(property, push_og_image_front[property]);
+                })
+
+                if (!is_duplicate_tw('twitter:image')) push_twit('twitter:image', image)
+                if (!is_duplicate_ite( 'image'))
+                    frontmatter.meta.push(itemprop_template('image', image))
+            }
+        };
+
+
+        const description_seo = () => {
+            const {
+                description
+            } = frontmatter
+            let meta_description = find_meta_description(frontmatter);
+
+            if (description) {
+                console.log('fr')
+                if (!is_duplicate_og('og:description'))
+                    push_og('og:description', description);
+                if (!is_duplicate_tw( 'twitter:description'))
+                    push_twit('twitter:description', description);
+                if (!meta_description)
+                    frontmatter.meta.push({'name': 'description', 'content': description});
+                if (!is_duplicate_ite( 'description'))
+                    frontmatter.meta.push(itemprop_template('description', description))
+            }
+            meta_description = find_meta_description(frontmatter);
+
+            if (meta_description) {
+                console.log('meta')
+                if (!is_duplicate_og('og:description')) {
+                    console.log("og")
+                    push_og('og:description', meta_description);
+                }
+                if (!is_duplicate_tw('twitter:description'))
+                    push_twit('twitter:description', meta_description);
+                if (!is_duplicate_ite( 'description'))
+                    frontmatter.meta.push(itemprop_template('description', meta_description))
+            }
+        };
+
+        const url_seo = () => {
+            if (!is_duplicate_og('og:url'))
+                push_og('og:url', full_url);
+            if (!has_name(frontmatter, 'twitter:url'))
+                push_twit('twitter:url', full_url)
+        };
+
+        const title_seo = () => {
+            const {title} = $page
+            if(frontmatter.title){
+                if (!is_duplicate_og('og:title'))
+                    push_og('og:title', frontmatter.title);
+                if (!is_duplicate_tw('twitter:title'))
+                    push_twit('twitter:title', frontmatter.title);
+                if (!is_duplicate_ite('name'))
+                    frontmatter.meta.push(itemprop_template('name', frontmatter.title))
+                return
+            }
+
+            if (!is_duplicate_og('og:title'))
+                push_og('og:title', title);
+            if (!is_duplicate_tw('twitter:title'))
+                push_twit('twitter:title', title);
+            if (!is_duplicate_ite('name'))
+                frontmatter.meta.push(itemprop_template('name', title))
+        };
+
+        const twitter_creator_seo = () => {
+            const {default_twitter_creator}=options
+            const {twitter_creator} = frontmatter
+
+            if (is_duplicate_tw('twitter:creator')) return
+
+            if (twitter_creator)
+                push_twit('twitter:creator', twitter_creator);
+            else if (default_twitter_creator)
+                push_twit('twitter:creator', default_twitter_creator)
+        };
+
+        const og_type_seo = () => {
+            const {og_type} = frontmatter
+            let default_og_type = options.default_og_type || "article";
+
+            if (is_duplicate_og('og:type')) return
+
+            if (og_type)
+                push_og('og:type', og_type);
+            else
+                push_og('og:type', default_og_type)
+        };
+
+        const twitter_card_seo = () => {
+            let default_twitter_card = options.default_twitter_card || "summary";
+            const {twitter_card} = frontmatter
+
+            if (!is_duplicate_tw('twitter:card') && twitter_card)
+                push_twit('twitter:card', twitter_card);
+            if (!is_duplicate_tw('twitter:card'))
+                push_twit('twitter:card', default_twitter_card)
+        };
+
+        const site_name_seo = () => {
+            const {default_site_name} = options
+            const {site_name} = frontmatter
+
+            if (!is_duplicate_og('og:site_name') && site_name)
+                push_og('og:site_name', site_name);
+            if (!is_duplicate_og('og:site_name') && default_site_name)
+                push_og('og:site_name', default_site_name)
+        };
+
+        const twitter_site_seo = () => {
+            const {default_twitter_site} = options
+            const {twitter_site} = frontmatter
+
+            if (!is_duplicate_tw('twitter:site') && twitter_site)
+                push_twit('twitter:site', twitter_site);
+            if (!is_duplicate_tw('twitter:site') && default_twitter_site)
+                push_twit('twitter:site', default_twitter_site)
+        };
 
         if (!exists_meta(frontmatter)) frontmatter.meta = [];
-
         /* IMAGE SEO */
-        let image = frontmatter.image
-
-        if (!has_property(frontmatter, 'og:image') && !image) {
-            // case. frontmatter image empty
-            frontmatter.meta.push(og_template('og:image', default_image_full_path))
-
-            if (!has_property(frontmatter, 'og:image:type') && default_image_type)
-                frontmatter.meta.push(og_template('og:image:type', default_image_type))
-            if (!has_property(frontmatter, 'og:image:width') && default_image_width)
-                frontmatter.meta.push(og_template('og:image:width', default_image_width))
-            if (!has_property(frontmatter, 'og:image:height') && default_image_height)
-                frontmatter.meta.push(og_template('og:image:height', default_image_height))
-            if (!has_property(frontmatter, 'og:image:alt') && default_image_alt)
-                frontmatter.meta.push(og_template('og:image:alt', default_image_alt))
-        }
-
-        if (!has_name(frontmatter, 'twitter:image') && !image) // case. image empty
-            frontmatter.meta.push(twitter_template('twitter:image', default_image_full_path))
-
-        if (image) {
-            if (!has_property(frontmatter, 'og:image'))
-                frontmatter.meta.push(og_template('og:image', image))
-            if (!has_property(frontmatter, 'og:image:type') && frontmatter.image_type)
-                frontmatter.meta.push(og_template('og:image:type', frontmatter.image_type))
-            if (!has_property(frontmatter, 'og:image:width') && frontmatter.image_width)
-                frontmatter.meta.push(og_template('og:image:width', frontmatter.image_width))
-            if (!has_property(frontmatter, 'og:image:height') && frontmatter.image_height)
-                frontmatter.meta.push(og_template('og:image:height', frontmatter.image_height))
-            if (!has_property(frontmatter, 'og:image:alt') && frontmatter.image_alt)
-                frontmatter.meta.push(og_template('og:image:alt', frontmatter.image_alt))
-
-            if (!has_name(frontmatter, 'twitter:image'))
-                frontmatter.meta.push(twitter_template('twitter:image', image))
-
-            if (!has_itemprop(frontmatter, 'image'))
-                frontmatter.meta.push(itemprop_template('image', image))
-        }
-
+        image_seo(options, frontmatter);
         /* DESCRIPTION SEO */
-        let meta_description = find_meta_description(frontmatter)
-
-        if (frontmatter.description) {
-            if (!has_property(frontmatter, 'og:description'))
-                frontmatter.meta.push(og_template('og:description', frontmatter.description))
-            if (!has_name(frontmatter, 'twitter:description'))
-                frontmatter.meta.push(twitter_template('twitter:description', frontmatter.description))
-            if (!meta_description)
-                frontmatter.meta.push({'name': 'description', 'content': frontmatter.description})
-            if (!has_itemprop(frontmatter, 'description'))
-                frontmatter.meta.push(itemprop_template('description', frontmatter.description))
-        }
-
-        if (meta_description) {
-            if (!has_property(frontmatter, 'og:description'))
-                frontmatter.meta.push(og_template('og:description', meta_description))
-            if (!has_name(frontmatter, 'twitter:description'))
-                frontmatter.meta.push(twitter_template('twitter:description', meta_description))
-            if (!has_itemprop(frontmatter, 'description'))
-                frontmatter.meta.push(itemprop_template('description', meta_description))
-        }
-
+        description_seo();
         /* URL SEO */
-        if (!has_property(frontmatter, 'og:url'))
-            frontmatter.meta.push(og_template('og:url', full_url))
-        if (!has_name(frontmatter, 'twitter:url'))
-            frontmatter.meta.push(twitter_template('twitter:url', full_url))
-
+        url_seo();
         /* TITLE SEO */
-        if (!has_property(frontmatter, 'og:title'))
-            frontmatter.meta.push(og_template('og:title', title))
-        if (!has_name(frontmatter, 'twitter:title'))
-            frontmatter.meta.push(twitter_template('twitter:title', title))
-        if (!has_itemprop(frontmatter, 'name'))
-            frontmatter.meta.push(itemprop_template('name', title))
-
+        title_seo();
         /* OG TYPE SEO */
-        if (!has_property(frontmatter, 'og:type') && frontmatter.og_type)
-            frontmatter.meta.push(og_template('og:type', frontmatter.og_type))
-        if (!has_property(frontmatter, 'og:type'))
-            frontmatter.meta.push(og_template('og:type', default_og_type))
-
+        og_type_seo();
         /* TWITTER CARD SEO */
-        if (!has_name(frontmatter, 'twitter:card') && frontmatter.twitter_card)
-            frontmatter.meta.push(twitter_template('twitter:card', frontmatter.twitter_card))
-        if (!has_name(frontmatter, 'twitter:card'))
-            frontmatter.meta.push(twitter_template('twitter:card', default_twitter_card))
-
+        twitter_card_seo();
         /* SITE NAME SEO */
-        if (!has_property(frontmatter, 'og:site_name') && frontmatter.site_name)
-            frontmatter.meta.push(og_template('og:site_name', frontmatter.site_name))
-        if (!has_property(frontmatter, 'og:site_name') && default_site_name)
-            frontmatter.meta.push(og_template('og:site_name', default_site_name))
-
+        site_name_seo();
         /* TWITTER SITE SEO */
-        if (!has_name(frontmatter, 'twitter:site') && frontmatter.twitter_site)
-            frontmatter.meta.push(twitter_template('twitter:site', frontmatter.twitter_site))
-        if (!has_name(frontmatter, 'twitter:site') && default_twitter_site)
-            frontmatter.meta.push(twitter_template('twitter:site', default_twitter_site))
-
+        twitter_site_seo();
         /* TWITTER CREATOR SEO */
-        if (!has_name(frontmatter, 'twitter:creator') && frontmatter.twitter_creator)
-            frontmatter.meta.push(twitter_template('twitter:creator', frontmatter.twitter_creator))
-        if (!has_name(frontmatter, 'twitter:creator') && default_twitter_creator)
-            frontmatter.meta.push(twitter_template('twitter:creator', default_twitter_creator))
+        twitter_creator_seo();
     }
 });
 
-function find_meta_description(frontmatter) {
+const find_meta_description = frontmatter => {
     let flag = false;
     let description = "";
 
-    frontmatter.meta.forEach(elem => {
-        if(elem.hasOwnProperty('name') && elem.name === 'description'){
-            flag = true;
-            description = elem.content
-        }
-    });
-
-    if(flag) {
-        return description
+    for (const elem of frontmatter.meta) if (elem.hasOwnProperty('name') && elem.name === 'description') {
+        flag = true;
+        description = elem.content
     }
+
+    if(flag) return description
     return flag
-}
+};
 
-function exists_meta(frontmatter) {
-    return frontmatter.meta !== undefined;
-}
+const exists_meta = frontmatter => frontmatter.meta !== undefined;
 
-function has_property(frontmatter, property_name) {
+const has_property = (frontmatter, property_name) => {
     let flag = false;
     frontmatter.meta.forEach(elem => {
         if (elem.hasOwnProperty('property') && elem.property === property_name) flag = true;
-    });
+    })
     return flag
-}
+};
 
-function has_name(frontmatter, name) {
+const has_name = (frontmatter, name) => {
     let flag = false;
     frontmatter.meta.forEach(elem => {
         if (elem.hasOwnProperty('name') && elem.name === name) flag = true;
-    });
+    })
     return flag
-}
-function has_itemprop(frontmatter, itemprop) {
+};
+const has_itemprop = (frontmatter, itemprop) => {
     let flag = false;
     frontmatter.meta.forEach(elem => {
         if (elem.hasOwnProperty('itemprop') && elem.itemprop === itemprop) flag = true;
     });
     return flag
-}
-function og_template(property, content) {
-    return {
-        'property': property,
-        'content': content
-    }
-}
-function twitter_template(name, content) {
-    return {
-        'name': name,
-        'content': content
-    }
-}
-function itemprop_template(itemprop, content) {
-    return {
-        'itemprop': itemprop,
-        'content': content
-    }
-}
+};
+
+const og_template = (property, content) => ({
+    'property': property,
+    'content': content
+});
+
+const twitter_template = (name, content) => ({
+    'name': name,
+    'content': content
+});
+
+const itemprop_template = (itemprop, content) => ({
+    'itemprop': itemprop,
+    'content': content
+});
 
 // custom frontmatter: image, image_type, image_width, image_height, image_alt
 // ,description, og_type, twitter_card, site_name
