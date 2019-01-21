@@ -1,8 +1,9 @@
 # vuepress-plugin-simple-seo
 
-vuepress-plugin-simple-seo for vuepress
+> Simple Seo plugin for Vuepress 1.x
 
-https://www.npmjs.com/package/@limdongjin/vuepress-plugin-simple-seo
+[![npm version](https://img.shields.io/npm/v/vuepress-plugin-feed.svg?style=flat-square)](https://www.npmjs.com/package/@limdongjin/vuepress-plugin-simple-seo)
+[![MIT License](https://img.shields.io/npm/l/express.svg?style=flat-square)](http://opensource.org/licenses/MIT)
 
 ## Install
 
@@ -20,17 +21,57 @@ module.exports = {
 }
 ```
 
+## Example Usage1
+
 ```js
-// example setting
+// config.js
 module.exports = {
     plugins:  ['@limdongjin/vuepress-plugin-simple-seo', {
-        root_url: 'https://limdongjin.github.io',
-        default_site_name: 'limdongjin TIL',
-        default_image: '/image.png',
-        default_twitter_creator: '@twituser',
-        default_twitter_site: '@twituser'
+          default_image: '/images/main-image-min.jpg',
+          root_url: 'https://limdongjin.github.io',
+          default_site_name: 'limdongjin TIL'
     }]
 }
+```
+
+```md
+---
+description: It is Simple Seo Plugin for Vuepress
+image: '/post-specific-image.png'
+twitter_creator: twituser
+twitter_site: twituser
+---
+
+# It is automatic title.
+
+hello world
+
+## gogo
+```
+
+```html
+<!-- result html head tags-->
+<meta property="og:image" content="https://limdongjin.github.io/images/main-image-min.jpg">
+<meta name="twitter:image" content="https://limdongjin.github.io/images/main-image-min.jpg">
+
+<meta property="og:description" content="It is Simple Seo Plugin for Vuepress">
+<meta name="twitter:description" content="It is Simple Seo Plugin for Vuepress">
+<meta itemprop="description" content="It is Simple Seo Plugin for Vuepress">
+
+<meta property="og:url" content="https://limdongjin.github.io/">
+<meta name="twitter:url" content="https://limdongjin.github.io/">
+
+<meta property="og:title" content="It is automatic title">
+<meta name="twitter:title" content="It is automatic title">
+<meta itemprop="name" content="It is automatic title">
+
+<meta property="og:type" content="article"> <!-- default value -->
+<meta name="twitter:card" content="summary"> <!-- default value -->
+
+<meta property="og:site_name" content="limdongjin TIL">
+
+<meta name="twitter:site" content="@twituser">
+<meta name="twitter:creator" content="@twituser">
 ```
 
 ## Options
@@ -219,3 +260,7 @@ if you are not write frontmatter title, create meta title tag from $page.title.
 ```html
 <meta property="og:site_name" content="limdongjin TIL">
 ```
+
+## License
+
+MIT © [limdongjin](https://github.com/limdongjin)

@@ -197,20 +197,24 @@ module.exports = (options = {}, context) => ({
             const {twitter_site} = frontmatter
             let sit;
 
-            if (!is_duplicate_tw('twitter:site') && twitter_site)
-                if(!twitter_site.includes("@")){
-                    sit = "@"+twitter_site
-                }else{
+            if (!is_duplicate_tw('twitter:site') && twitter_site) {
+                if (!twitter_site.includes("@")) {
+                    sit = "@" + twitter_site
+                } else {
                     sit = twitter_site
                 }
                 push_twit('twitter:site', sit);
-            if (!is_duplicate_tw('twitter:site') && default_twitter_site)
-                if(!twitter_site.includes("@")){
-                    sit = "@"+default_twitter_site
-                }else{
+                return
+            }
+
+            if (!is_duplicate_tw('twitter:site') && default_twitter_site) {
+                if (!twitter_site.includes("@")) {
+                    sit = "@" + default_twitter_site
+                } else {
                     sit = default_twitter_site
                 }
                 push_twit('twitter:site', sit)
+            }
         };
 
         if (!exists_meta(frontmatter)) frontmatter.meta = [];
