@@ -151,7 +151,7 @@ module.exports = (options = {}, context) => ({
                 push_twit('twitter:creator', creator);
             }
             else if (default_twitter_creator) {
-                if(!twitter_creator.includes("@")) {
+                if(!default_twitter_creator.includes("@")) {
                     creator = "@"+default_twitter_creator
                 }else{
                     creator = default_twitter_creator
@@ -208,7 +208,7 @@ module.exports = (options = {}, context) => ({
             }
 
             if (!is_duplicate_tw('twitter:site') && default_twitter_site) {
-                if (!twitter_site.includes("@")) {
+                if (!default_twitter_site.includes("@")) {
                     sit = "@" + default_twitter_site
                 } else {
                     sit = default_twitter_site
